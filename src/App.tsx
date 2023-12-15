@@ -7,6 +7,7 @@ import SignIn from './pages/Authentication/SignIn';
 import SignUp from './pages/Authentication/SignUp';
 import Loader from './common/Loader';
 import routes from './routes';
+import { ApiProvider } from './common/api/api-context';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
@@ -21,6 +22,7 @@ function App() {
     <Loader />
   ) : (
     <>
+      <ApiProvider>
       <Toaster
         position="top-right"
         reverseOrder={false}
@@ -47,6 +49,7 @@ function App() {
           })}
         </Route>
       </Routes>
+      </ApiProvider>
     </>
   );
 }

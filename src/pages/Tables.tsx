@@ -1,23 +1,12 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import papa from "papaparse";
 import Breadcrumb from '../components/Breadcrumb';
 import TableOne from '../components/TableOne';
 import TableThree from '../components/TableThree';
 import TableTwo from '../components/TableTwo';
+import { useApiGetProjectAssignments } from '../hooks/useApiGetProjectAssignments';
 
 const Tables = () => {
-
-  // const csvFileReaderRef = useRef<FileReader>(new FileReader());
-
-  // useEffect(() => {
-  //   csvFileReaderRef.current.onload = async ({ target, }) => {
-  //     if(target && target.result) {
-  //       const content = papa.parse(target., {
-  //         header: true,
-  //       });
-  //     }
-  //   }
-  // }, [])
 
   const onCsvDataParsed: papa.ParseLocalConfig<any, File>['complete'] = useCallback((results: papa.ParseResult<any>) => {
     console.log(results);
@@ -31,6 +20,23 @@ const Tables = () => {
       })
     }
   }, [onCsvDataParsed])
+
+  const solutions = useApiGetProjectAssignments();
+
+  const solutionsWithId = solutions.map((solution, index) => {
+    return {
+      ...solution,
+      id: index + 1,
+    }
+  })
+
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null)
+
+  const onSelectSolution = useCallback((index: number) => {
+    setSelectedIndex(index)
+    setSelectedTeacher(null);
+  }, [])
 
   return (
     <>
@@ -110,9 +116,15 @@ const Tables = () => {
         </div>
       </div>
       <div className="flex flex-col gap-10 mt-6">
-        <TableOne />
-        {/* <TableTwo />
-        <TableThree /> */}
+        <TableThree 
+          solutions={solutionsWithId} 
+          selectedIndex={selectedIndex} 
+          onSelectSolution={onSelectSolution}
+          onTeacherSelectedToShow={(teacherName) => setSelectedTeacher(teacherName)}
+        />
+        {selectedTeacher && <TableOne teacherName={selectedTeacher} listThesis={solutions[selectedIndex].assignment[selectedTeacher]}/>}
+        {/* <TableTwo /> */}
+
       </div>
     </>
   );
