@@ -14,7 +14,30 @@ export interface ISolution {
   assignment: IAssignment;
   score: number;
 }
+const res = await fetch('http://localhost:8000/assignment/v2');
+const data= await res.json();
+// Convert data to ISolution[]
 
+let converted = data.map((solution: any) => {
+  let assignment: IAssignment = {};
+  console.log(solution.teachers)
+  for (let teacherName in solution.teachers) {
+    console.log(solution.teachers[teacherName])
+    let theses: IThesisInfo[] = solution.teachers[teacherName].theses.map((thesis: any) => {
+      return {
+        thesisName: thesis.thesis,
+        studentName: thesis.student,
+        similarity: thesis.similarity,
+      }
+    })
+    assignment[solution.teachers[teacherName].teacher] = theses;
+  }
+  return {
+    assignment,
+    score: solution.score,
+  }
+})
+console.log(converted);
 const mockData: ISolution[] = [
   {
     assignment: {
@@ -71,6 +94,6 @@ export interface IApiProviderProps {
 
 export const ApiProvider = ({ children }: IApiProviderProps) => {
   return <ApiContext.Provider
-    value={mockData}
+    value={converted}
   >{children}</ApiContext.Provider>
 }
